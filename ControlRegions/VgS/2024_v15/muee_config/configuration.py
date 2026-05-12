@@ -1,7 +1,7 @@
 import sys,os
 
 #: tag used to identify the configuration folder version
-tag = "WgS_2024v15"   
+tag = "WgS_MuEE_2024v15"
 
 #: file to use as runner script, default uses mkShapesRDF.shapeAnalysis.runner, otherwise specify path to script
 runnerFile = "default"
@@ -27,11 +27,13 @@ aliasesFile = "aliases.py"
 #: file with dict of variables
 variablesFile = "variables.py"
 
+
 #: file with dict of cuts
 cutsFile = "cuts.py"
 
 #: file with dict of samples
 samplesFile = "samples.py"
+
 
 #: file with dict of samples
 plotFile = "plot.py"
@@ -40,7 +42,9 @@ plotFile = "plot.py"
 structureFile = "structure.py"
 
 # nuisances file for mkDatacards and for mkShape
-nuisancesFile = "nuisances.py"
+# nuisancesFile = "nuisances.py"
+nuisancesFile = "nuisancesLocal.py"
+
 
 # minRatio = 0.5
 # maxRatio = 1.5

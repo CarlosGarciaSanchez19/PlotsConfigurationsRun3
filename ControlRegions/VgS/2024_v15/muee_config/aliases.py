@@ -7,10 +7,10 @@ ROOT.gSystem.Load("libGpad.so")
 ROOT.gSystem.Load("libGraf.so")
 
 configurations = os.path.realpath(inspect.getfile(inspect.currentframe())) # this file
-configurations = os.path.dirname(configurations) # /afs/cern.ch/user/n/ntrevisa/work/latinos/Run3_WH/PlotsConfigurationsRun3/ControlRegions/VgS/2024_v15
-configurations = os.path.dirname(configurations) # /afs/cern.ch/user/n/ntrevisa/work/latinos/Run3_WH/PlotsConfigurationsRun3/ControlRegions/VgS/
-configurations = os.path.dirname(configurations) # /afs/cern.ch/user/n/ntrevisa/work/latinos/Run3_WH/PlotsConfigurationsRun3/ControlRegions/
-configurations = os.path.dirname(configurations) # /afs/cern.ch/user/n/ntrevisa/work/latinos/Run3_WH/PlotsConfigurationsRun3/
+configurations = os.path.dirname(configurations) # <user folder>/PlotsConfigurationsRun3/ControlRegions/VgS/2024_v15/muee_config
+configurations = os.path.dirname(configurations) # <user folder>/PlotsConfigurationsRun3/ControlRegions/VgS/2024_v15
+configurations = os.path.dirname(configurations) # <user folder>/PlotsConfigurationsRun3/ControlRegions/VgS
+# configurations = os.path.dirname(configurations) # <user folder>/PlotsConfigurationsRun3/ControlRegions
 print(configurations)
 
 aliases = {}
@@ -19,35 +19,62 @@ aliases = OrderedDict()
 mc     = [skey for skey in samples if skey not in ('Fake', 'DATA')]
 mc_emb = [skey for skey in samples if skey not in ('Fake', 'DATA')]
 
-# LepSF3l__ele_cutBased_LooseID_tthMVA_Run3__mu_cut_TightID_pfIsoTight_HWW_tthmva_67
-eleWP = 'cutBased_LooseID_tthMVA_Run3'
-muWP  = 'cut_TightID_pfIsoTight_HWW_tthmva_67'
 
-# Build Wg* lepton ID for second and third leptons
-# Electrons: https://github.com/latinos/LatinoAnalysis/blob/UL_production/NanoGardener/python/data/LeptonSel_cfg.py#L209-L256
-# Muons:     https://github.com/latinos/LatinoAnalysis/blob/UL_production/NanoGardener/python/data/LeptonSel_cfg.py#L6018-L6064
-# In summary: Wg* ID is the same as the tight ID but with relaxed isolation. Any easier implementation? E.g., Lepton_tightID_XXX || Lepton_Iso < YYY
-aliases['LepWgSCut'] = {
-    'expr' : '( ( (abs(Alt(Lepton_pdgId,1,0)) == 11 && Alt(Electron_promptMVA,1,0) > 0.90 && Alt(Electron_pfRelIso03_all,1,999) < 0.3) \
-               || (abs(Alt(Lepton_pdgId,1,0)) == 13 && Alt(Muon_promptMVA,1,0)     > 0.67) ) \
-             && ( (abs(Alt(Lepton_pdgId,2,0)) == 11 && Alt(Electron_promptMVA,2,0) > 0.90 && Alt(Electron_pfRelIso03_all,2,999) < 0.3) \
-               || (abs(Alt(Lepton_pdgId,2,0)) == 13 && Alt(Muon_promptMVA,2,0)     > 0.67) ) ) \
-    ',
-    'samples': mc + ['DATA'],
+
+###### Defining new electron WP for leptons 2 and 3 (cutBased_MediumID_tthMVA_Run3 without MVA requirement)
+aliases['ele2WP'] = {
+    'expr': 'abs(Alt(Lepton_pdgId,1,0)) == 11 \
+      && (Alt(Electron_eta,Lepton_electronIdx[1],0) <= 1.479 ? \
+        Alt(Electron_dxy, Lepton_electronIdx[1], 0) < 0.05 && \
+        Alt(Electron_dz, Lepton_electronIdx[1], 0) < 0.1 : \
+        Alt(Electron_dxy, Lepton_electronIdx[1], 0) < 0.1 && \
+        Alt(Electron_dz, Lepton_electronIdx[1], 0) < 0.2 ) \
+      && Alt(Electron_eta,Lepton_electronIdx[1],0) < 2.5 \
+      && Alt(Electron_cutBased, Lepton_electronIdx[1], 0) >= 3 \
+      && Alt(Electron_convVeto, Lepton_electronIdx[1], 0)',
 }
 
+aliases['ele3WP'] = {
+    'expr': 'abs(Alt(Lepton_pdgId,2,0)) == 11 \
+      && (Alt(Electron_eta,Lepton_electronIdx[2],0) <= 1.479 ? \
+        Alt(Electron_dxy, Lepton_electronIdx[2], 0) < 0.05 && \
+        Alt(Electron_dz, Lepton_electronIdx[2], 0) < 0.1 : \
+        Alt(Electron_dxy, Lepton_electronIdx[2], 0) < 0.1 && \
+        Alt(Electron_dz, Lepton_electronIdx[2], 0) < 0.2 ) \
+      && Alt(Electron_eta,Lepton_electronIdx[2],0) < 2.5 \
+      && Alt(Electron_cutBased, Lepton_electronIdx[2], 0) >= 3 \
+      && Alt(Electron_convVeto, Lepton_electronIdx[2], 0)' \
+}
 
-# We want only the leading lepton to pass the tight selections
+######
+
+muWP  = 'cut_TightID_pfIsoTight_HWW_tthmva_67'
+# No MVA requirement for leptons 2 and 3. cut_TightID_pfIsoTight_HWW_tthmva_67 ID for the leading muon.
 aliases['LepWPCut'] = {
-    'expr' : "(Lepton_isTightElectron_" + eleWP + "[0]>0.5 || Lepton_isTightMuon_" + muWP + "[0]>0.5)",
+    'expr' : "Lepton_isTightMuon_" + muWP + "[0]>0.5 && ele2WP && ele3WP",
     'samples': mc + ['DATA'],
 }
 
 aliases['LepWPSF'] = {
-    'expr' : "Lepton_tightElectron_" + eleWP + "_IdIsoSF[0]*Lepton_tightMuon_" + muWP + "_IdIsoSF[0]",
+    'expr' : "Lepton_tightMuon_" + muWP + "_IdIsoSF[0]", # electrons SFs to be computed with new WPs
     'samples': mc
 }
 
+
+###### J/psi mass veto
+
+aliases['reco_ZGstar_mass'] = {
+    'expr': 'reco_ZGstar_mass(nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId)',
+    'linesToAdd': [f'#include "{configurations}/macros/reco_ZGstar_mass.cc"'],
+    'samples': mc + ['DATA']
+}
+
+aliases['JpsiVeto'] = {
+    'expr': 'abs(reco_ZGstar_mass - 3.1) > 0.1',
+    'samples': mc + ['DATA']
+}
+
+######
 
 # Gen-matching to prompt only (match to *any* gen lepton)
 aliases['PromptGenLepMatch3l'] = {
@@ -93,6 +120,7 @@ aliases['Top_pTrw'] = {
     'expr': '(topGenPt * antitopGenPt > 0.) * (TMath::Sqrt((0.103*TMath::Exp(-0.0118*topGenPt) - 0.000134*topGenPt + 0.973) * (0.103*TMath::Exp(-0.0118*antitopGenPt) - 0.000134*antitopGenPt + 0.973))) + (topGenPt * antitopGenPt <= 0.)',
     'samples': ['top']
 }
+
 
 # Jet bins
 # using Alt(CleanJet_pt, n, 0) instead of Sum(CleanJet_pt >= 30) because jet pt ordering is not strictly followed in JES-varied samples
@@ -154,25 +182,25 @@ aliases['bReq'] = {
 }
 
 # Scale factors
-eff_map_year = '2024'
-year         = 'Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15'
+# eff_map_year = '2024'
+# year         = 'Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15'
 
-shifts_per_flavour = {
-    'bc': ['central', 'down', 'down_fsrdef', 'down_hdamp', 'down_isrdef', 'down_jer', 'down_jes', 'down_mass', 'down_statistic', 'down_tune', 'up', 'up_fsrdef', 'up_hdamp', 'up_isrdef', 'up_jer', 'up_jes', 'up_mass', 'up_statistic', 'up_tune'],
-    'light': ['central', 'down', 'down_correlated', 'down_uncorrelated', 'up', 'up_correlated', 'up_uncorrelated'],
-}
+# shifts_per_flavour = {
+#     'bc': ['central', 'down', 'down_fsrdef', 'down_hdamp', 'down_isrdef', 'down_jer', 'down_jes', 'down_mass', 'down_statistic', 'down_tune', 'up', 'up_fsrdef', 'up_hdamp', 'up_isrdef', 'up_jer', 'up_jes', 'up_mass', 'up_statistic', 'up_tune'],
+#     'light': ['central', 'down', 'down_correlated', 'down_uncorrelated', 'up', 'up_correlated', 'up_uncorrelated'],
+# }
 
-for flavour in ['bc', 'light']:
-    for shift in shifts_per_flavour[flavour]:
-        btagsf = 'btagSF' + flavour
-        if shift != 'central':
-            btagsf += '_' + shift
-        aliases[btagsf] = {
-            'linesToAdd'     : [f'#include "{configurations}/utils/macros/evaluate_btagSF{flavour}.cc"'],
-            'linesToProcess' : [f"ROOT.gInterpreter.Declare('btagSF{flavour} btagSF{flavour}_{shift} = btagSF{flavour}(\"{configurations}/utils/data/btag/{eff_map_year}/bTagEff_{eff_map_year}_ttbar_{bAlgo}_{WP}.root\", \"{year}\");')"],
-            'expr'           : f'btagSF{flavour}_{shift}(CleanJet_pt, CleanJet_eta, CleanJet_jetIdx, nCleanJet, Jet_hadronFlavour, Jet_btag{bAlgo}, "{WP_eval}", "{shift}", "{tagger}", "{eff_map_year}")',
-            'samples'        : mc,
-        }
+# for flavour in ['bc', 'light']:
+#     for shift in shifts_per_flavour[flavour]:
+#         btagsf = 'btagSF' + flavour
+#         if shift != 'central':
+#             btagsf += '_' + shift
+#         aliases[btagsf] = {
+#             'linesToAdd'     : [f'#include "{configurations}/utils/macros/evaluate_btagSF{flavour}.cc"'],
+#             'linesToProcess' : [f"ROOT.gInterpreter.Declare('btagSF{flavour} btagSF{flavour}_{shift} = btagSF{flavour}(\"{configurations}/utils/data/btag/{eff_map_year}/bTagEff_{eff_map_year}_ttbar_{bAlgo}_{WP}.root\", \"{year}\");')"],
+#             'expr'           : f'btagSF{flavour}_{shift}(CleanJet_pt, CleanJet_eta, CleanJet_jetIdx, nCleanJet, Jet_hadronFlavour, Jet_btag{bAlgo}, "{WP_eval}", "{shift}", "{tagger}", "{eff_map_year}")',
+#             'samples'        : mc,
+#         }
 
 ##########################################################################
 # End of b tagging
@@ -203,15 +231,15 @@ aliases['nHardJets'] = {
 
 # Single lepton trigger selection
 aliases['TrigSLWP'] = {
-    'expr' : '(HLT_IsoMu24 || HLT_Ele30_WPTight_Gsf)',
+    'expr' : 'HLT_IsoMu24',
     'samples' : mc
 }
 
 aliases['TrigSLSF'] = {
-    'expr' : 'TriggerSFWeight_sngMu * TriggerSFWeight_sngEl',
+    'expr' : 'TriggerSFWeight_sngMu',
     'samples' : mc
 }
-    
+
 # 3-leptons recoSF
 aliases['RecoSF3l'] = {
     'expr' : 'Lepton_RecoSF[0] * Lepton_RecoSF[1] * Lepton_RecoSF[2]',
@@ -219,20 +247,25 @@ aliases['RecoSF3l'] = {
 }
 
 
-# Data/MC scale factors and systematic uncertainties - Trigger scale factors are missing!
+# Data/MC scale factors and systematic uncertainties
 aliases['SFweight'] = {
-    'expr': ' * '.join(['TrigSLWP', 'TrigSLSF', 'RecoSF3l', 'puWeight', 'LepWPCut', 'LepWPSF', 'btagSFbc', 'btagSFlight']),
+    'expr': ' * '.join(['TrigSLWP', 'TrigSLSF', 'RecoSF3l', 'puWeight', 'LepWPCut', 'LepWPSF']),
     'samples': mc
 }
 
-aliases['SFweightEleUp'] = {
-    'expr': 'LepSF3l__ele_'+eleWP+'__Up',
-    'samples': mc
-}
-aliases['SFweightEleDown'] = {
-    'expr': 'LepSF3l__ele_'+eleWP+'__Down',
-    'samples': mc
-}
+# aliases['SFweight'] = {
+#     'expr': ' * '.join(['TrigSLWP', 'TrigSLSF', 'RecoSF3l', 'puWeight', 'LepWPCut', 'LepWPSF', 'btagSFbc', 'btagSFlight']),
+#     'samples': mc
+# }
+
+# aliases['SFweightEleUp'] = {
+#     'expr': 'LepSF3l__ele_'+eleWP+'__Up',
+#     'samples': mc
+# }
+# aliases['SFweightEleDown'] = {
+#     'expr': 'LepSF3l__ele_'+eleWP+'__Down',
+#     'samples': mc
+# }
 aliases['SFweightMuUp'] = {
     'expr': 'LepSF3l__mu_'+muWP+'__Up',
     'samples': mc

@@ -21,43 +21,15 @@ groupPlot['WW']  = {
     'samples'  : ['WW', 'ggWW']
 }
 
-groupPlot['WZ']  = {
-    'nameHR'   : "WZ",
-    'isSignal' : 0,
-    'color'    : 617, # kViolet + 1 
-    'samples'  : ['WZ']
-}
-
 groupPlot['ZZ']  = {
     'nameHR'   : "ZZ",
     'isSignal' : 0,
-    'color'    : 618, # kViolet + 2
+    'color'    : 801, # kOrange + 1
     'samples'  : ['ZZ']
 }
 
-groupPlot['Wg']  = {
-    'nameHR'   : 'W#gamma',
-    'isSignal' : 0,
-    'color'    : 801, # kOrange + 1
-    'samples'  : ['Wg']
-}
-
-groupPlot['WgS']  = {
-    'nameHR'   : 'W#gamma*',
-    'isSignal' : 0,
-    'color'    : 633, # kRed + 1
-    'samples'  : ['WgS']
-}
-
-groupPlot['Zg']  = {
-    'nameHR'   : 'Z#gamma',
-    'isSignal' : 0,
-    'color'    : 601, # kBlue + 1
-    'samples'  : ['Zg']
-}
-
 groupPlot['ZgS']  = {
-    'nameHR'   : 'Z#gamma*',
+    'nameHR'   : 'Z#gamma/#gamma*',
     'isSignal' : 0,
     'color'    : 433, # kCyan + 1
     'samples'  : ['ZgS']
@@ -76,6 +48,13 @@ groupPlot['VVV']  = {
 #     'color'    : 921,
 #     'samples'  : ['Fake']
 # }
+
+groupPlot['WZgS']  = {
+    'nameHR'   : 'WZ/#gamma*',
+    'isSignal' : 0,
+    'color'    : 633, # kRed + 1
+    'samples'  : ['WZgS']
+}
 
 # keys here must match keys in samples.py    
                     
@@ -113,41 +92,9 @@ plot['ggWW']  = {
     'scale'    : 1.0,
 }
 
-plot['WZ']  = {
-    'nameHR'   : 'WZ',
-    'color'    : '#a96b59',
-    'isSignal' : 0,
-    'isData'   : 0,
-    'scale'    : 1.0,
-}
-
 plot['ZZ']  = {
     'nameHR'   : 'ZZ',
-    'color'    : 617,
-    'isSignal' : 0,
-    'isData'   : 0,
-    'scale'    : 1.0,
-}
-
-plot['Wg']  = {
-    'nameHR'   : 'Wg',
-    'color'    : 857,
-    'isSignal' : 0,
-    'isData'   : 0,
-    'scale'    : 1.0,
-}
-
-plot['Zg']  = {
-    'nameHR'   : 'Zg',
-    'color'    : 857,
-    'isSignal' : 0,
-    'isData'   : 0,
-    'scale'    : 1.0,
-}
-
-plot['WgS']  = {
-    'nameHR'   : 'WgS',
-    'color'    : 858,
+    'color'    : 801, # kOrange + 1
     'isSignal' : 0,
     'isData'   : 0,
     'scale'    : 1.0,
@@ -164,6 +111,14 @@ plot['ZgS']  = {
 plot['VVV']  = {
     'nameHR'   : 'VVV',
     'color'    : 617,
+    'isSignal' : 0,
+    'isData'   : 0,
+    'scale'    : 1.0,
+}
+
+plot['WZgS']  = {
+    'nameHR'   : 'WZgS',
+    'color'    : 858,
     'isSignal' : 0,
     'isData'   : 0,
     'scale'    : 1.0,

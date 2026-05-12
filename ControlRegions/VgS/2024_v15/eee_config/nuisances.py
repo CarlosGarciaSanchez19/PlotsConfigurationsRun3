@@ -134,30 +134,30 @@ nuisance_sources = {
     'light': [ 'correlated', 'uncorrelated'],
 }
 
-for source in nuisance_sources['bc']:
-    btag_syst = [f'btagSFbc_up_{source}/btagSFbc', f'btagSFbc_down_{source}/btagSFbc']
-    if source == 'statistic':
-        name = f'CMS_btagSFbc_correlated'
-    else :
-        name = f'CMS_btagSFbc_{source}_2024'
-    nuisances[f'btagSFbc_{source}'] = {
-        'name': name,
-        'skipCMS': 1,
-        'kind': 'weight',
-        'type': 'shape',
-        'samples': dict((skey, btag_syst) for skey in mc),
-    }
+# for source in nuisance_sources['bc']:
+#     btag_syst = [f'btagSFbc_up_{source}/btagSFbc', f'btagSFbc_down_{source}/btagSFbc']
+#     if source == 'statistic':
+#         name = f'CMS_btagSFbc_correlated'
+#     else :
+#         name = f'CMS_btagSFbc_{source}_2024'
+#     nuisances[f'btagSFbc_{source}'] = {
+#         'name': name,
+#         'skipCMS': 1,
+#         'kind': 'weight',
+#         'type': 'shape',
+#         'samples': dict((skey, btag_syst) for skey in mc),
+#     }
 
-for corr in nuisance_sources['light']:
-    btag_syst = [ f'btagSFlight_up_{corr}/btagSFlight', f'btagSFlight_down_{corr}/btagSFlight']
-    name = (f'CMS_btagSFlight_{corr}' if corr == 'correlated' else f'CMS_btagSFlight_2024')
-    nuisances[f'btagSFlight_{corr}'] = {
-        'name': name,
-        'skipCMS': 1,
-        'kind': 'weight',
-        'type': 'shape',
-        'samples': dict((skey, btag_syst) for skey in mc),
-    }
+# for corr in nuisance_sources['light']:
+#     btag_syst = [ f'btagSFlight_up_{corr}/btagSFlight', f'btagSFlight_down_{corr}/btagSFlight']
+#     name = (f'CMS_btagSFlight_{corr}' if corr == 'correlated' else f'CMS_btagSFlight_2024')
+#     nuisances[f'btagSFlight_{corr}'] = {
+#         'name': name,
+#         'skipCMS': 1,
+#         'kind': 'weight',
+#         'type': 'shape',
+#         'samples': dict((skey, btag_syst) for skey in mc),
+#     }
 
 
 ##### Trigger Scale Factors                                                                                                                                                                                
